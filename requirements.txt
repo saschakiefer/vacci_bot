@@ -1,0 +1,4 @@
+pandas~=1.2.3
+Pillow~=8.1.1
+tweepy~=3.10.0
+python-dotenv~=0.15.0
