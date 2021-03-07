@@ -4,6 +4,7 @@ import os
 from datetime import timedelta
 
 import tweepy
+from PIL import Image, ImageDraw, ImageFont
 
 from vaccination_stats import VaccinationStats
 
@@ -11,6 +12,8 @@ logger = logging.getLogger()
 
 
 class TweetBot:
+    IMAGE = "progress_bar.png"
+
     def __init__(self, stats: VaccinationStats):
         self._stats = stats
 
@@ -28,6 +31,37 @@ class TweetBot:
         self._api.verify_credentials()
 
         logger.info("Logged in to Twitter")
+
+    def create_image(self):
+        with Image.new("RGB", (1000, 500), color="#FEFFFE") as img:
+            draw = ImageDraw.Draw(img)
+
+            # Frame
+            draw.rectangle([(25, 175), (975, 325)], width=2, outline="#000000")
+
+            # Inner Bar
+            draw.rectangle([(50, 200), (950, 300)], width=0, fill="#000000")
+
+            # Draw 70%
+            x = 50 + int(round(900 * 0.7))
+            draw.line([(x, 200), (x, 300)], width=4, fill="green")
+
+            # Draw current
+            x = 50 + int(round(900 * self._stats.vacc_quote))
+            draw.rectangle([(50, 200), (x, 300)], width=0, fill="green")
+
+            # Days to go
+            fnt = ImageFont.truetype("bot/arial.ttf", 50)
+            draw.text(
+                (200, 220),
+                "Days to 70%: " + str(self._stats.days_to_go),
+                font=fnt,
+                fill="white",
+            )
+
+            img.save(TweetBot.IMAGE)
+
+            logger.info("Image Created")
 
     def tweet(self):
         """
@@ -64,9 +98,9 @@ class TweetBot:
             )
         )
 
-        from main import IMAGE  # Avoid Circular Import
+        self.create_image()
+        media = self._api.media_upload(TweetBot.IMAGE)
 
-        media = self._api.media_upload(IMAGE)
         self._api.update_status(
             status=status_text,
             lat=52.53988938917128,
@@ -97,6 +131,8 @@ class TweetBot:
         last_dataset_date = (last_tweet[0].created_at - timedelta(days=1)).replace(
             hour=0, minute=0, second=0
         )
+        logger.info(f"Last Tweet date is {last_tweet[0].created_at}")
+        logger.info(f"Last dataset date is {last_dataset_date}")
 
         if self._stats.date > last_dataset_date:
             return True

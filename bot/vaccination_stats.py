@@ -18,7 +18,7 @@ class VaccinationStats:
 
         df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
         self.date = pd.Timestamp(df.tail(1)["date"].values[0]).to_pydatetime()
-        logger.info(f"Record date {self.date}")
+        logger.info(f"Current dataset date is {self.date}")
 
         self.vacc_cumulated = df.tail(1)["dosen_kumulativ"].values[0]
         self.vacc_both = df.tail(1)["personen_voll_kumulativ"].values[0]
