@@ -17,6 +17,8 @@ class TweetBot:
     def __init__(self, stats: VaccinationStats):
         self._stats = stats
 
+        locale.setlocale(locale.LC_ALL, "de_DE")
+
         # Authenticate to Twitter
         consumer_key = os.getenv("CONSUMER_KEY")
         consumer_secret = os.getenv("CONSUMER_SECRET")
@@ -47,7 +49,7 @@ class TweetBot:
             draw.line([(x, 200), (x, 300)], width=4, fill="green")
 
             # Draw current
-            x = 50 + int(round(900 * self._stats.vacc_quote))
+            x = 50 + int(round(900 * self._stats.vacc_quote_first))
             draw.rectangle([(50, 200), (x, 300)], width=0, fill="green")
 
             # Days to go
@@ -55,6 +57,22 @@ class TweetBot:
             draw.text(
                 (200, 220),
                 "Days to 70%: " + str(self._stats.days_to_go),
+                font=fnt,
+                fill="white",
+            )
+
+            # Persons
+            fnt = ImageFont.truetype("bot/arial.ttf", 14)
+            draw.text(
+                (204, 283),
+                "{} people to go (first shot)".format(
+                    locale.format_string(
+                        "%d",
+                        round(self._stats.people_to_go),
+                        grouping=True,
+                        monetary=True,
+                    )
+                ),
                 font=fnt,
                 fill="white",
             )
@@ -68,28 +86,27 @@ class TweetBot:
         Create and send tweet with image
         """
 
-        if not self.is_new_data():
-            logger.info("No updates yet")
-            return
+        # if not self.is_new_data():
+        #     logger.info("No updates yet")
+        #     return
 
         # Create Tweet
-        locale.setlocale(locale.LC_ALL, "de_DE")
         status_text = (
             "In Deutschland sind {} Menschen ({}%) geimpft.\n"
-            "Davon {} mit einer und {} mit zwei Impfungen.\n"
+            "Davon {} ({}%) vollständig mit zwei Impfungen.\n"
             "Impfungen/Tag: {} (Median über letzten 7 Meldetage)\n"
             "Stand: {}.".format(
-                locale.format_string(
-                    "%d", self._stats.vacc_cumulated, grouping=True, monetary=True
-                ),
-                locale.format_string(
-                    "%.2f", self._stats.vacc_quote * 100, grouping=True, monetary=True
-                ),
                 locale.format_string(
                     "%d", self._stats.vacc_first, grouping=True, monetary=True
                 ),
                 locale.format_string(
+                    "%.2f", self._stats.vacc_quote_first * 100, grouping=True, monetary=True
+                ),
+                locale.format_string(
                     "%d", self._stats.vacc_both, grouping=True, monetary=True
+                ),
+                locale.format_string(
+                    "%.2f", self._stats.vacc_quote_complete * 100, grouping=True, monetary=True
                 ),
                 locale.format_string(
                     "%d", self._stats.vacc_median, grouping=True, monetary=True
@@ -97,6 +114,7 @@ class TweetBot:
                 self._stats.date.strftime("%d.%m.%Y"),
             )
         )
+        logger.info(status_text)
 
         self.create_image()
         media = self._api.media_upload(TweetBot.IMAGE)

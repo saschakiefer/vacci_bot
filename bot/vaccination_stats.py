@@ -4,6 +4,7 @@ import pandas as pd
 
 logger = logging.getLogger()
 
+
 class VaccinationStats:
     DATA_SOURCE = (
         "https://impfdashboard.de/static/data/germany_vaccinations_timeseries_v2.tsv"
@@ -24,9 +25,10 @@ class VaccinationStats:
         self.vacc_both = df.tail(1)["personen_voll_kumulativ"].values[0]
         self.vacc_first = df.tail(1)["personen_erst_kumulativ"].values[0]
 
-        self.vacc_quote = self.vacc_cumulated / VaccinationStats.POPULATION
+        self.vacc_quote_first = self.vacc_first / VaccinationStats.POPULATION
+        self.vacc_quote_complete = self.vacc_both / VaccinationStats.POPULATION
+
         self.vacc_median = df.tail(7)["dosen_differenz_zum_vortag"].mean()
 
-        self.days_to_go = int(
-            round(VaccinationStats.POPULATION * 0.7 / self.vacc_median)
-        )
+        self.people_to_go = VaccinationStats.POPULATION * 0.7 - self.vacc_first
+        self.days_to_go = int(round(self.people_to_go / self.vacc_median))
