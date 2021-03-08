@@ -81,12 +81,12 @@ class TweetBot:
 
             logger.info("Image Created")
 
-    def tweet(self):
+    def tweet(self, test_mode: bool = False):
         """
         Create and send tweet with image
         """
 
-        if not self.is_new_data():
+        if not test_mode and not self.is_new_data():
             logger.info("No updates yet")
             return
 
@@ -100,13 +100,19 @@ class TweetBot:
                     "%d", self._stats.vacc_first, grouping=True, monetary=True
                 ),
                 locale.format_string(
-                    "%.2f", self._stats.vacc_quote_first * 100, grouping=True, monetary=True
+                    "%.2f",
+                    self._stats.vacc_quote_first * 100,
+                    grouping=True,
+                    monetary=True,
                 ),
                 locale.format_string(
                     "%d", self._stats.vacc_both, grouping=True, monetary=True
                 ),
                 locale.format_string(
-                    "%.2f", self._stats.vacc_quote_complete * 100, grouping=True, monetary=True
+                    "%.2f",
+                    self._stats.vacc_quote_complete * 100,
+                    grouping=True,
+                    monetary=True,
                 ),
                 locale.format_string(
                     "%d", self._stats.vacc_median, grouping=True, monetary=True
@@ -117,15 +123,18 @@ class TweetBot:
         logger.info(status_text)
 
         self.create_image()
-        media = self._api.media_upload(TweetBot.IMAGE)
 
-        self._api.update_status(
-            status=status_text,
-            lat=52.53988938917128,
-            long=13.34704871422069,
-            media_ids=[media.media_id],
-        )
-        logger.info("Tweeted")
+        if not test_mode:
+            media = self._api.media_upload(TweetBot.IMAGE)
+            self._api.update_status(
+                status=status_text,
+                lat=52.53988938917128,
+                long=13.34704871422069,
+                media_ids=[media.media_id],
+            )
+            logger.info("Tweeted")
+        else:
+            logger.info("Test mode. Nothing tweeted")
 
     def is_new_data(self) -> bool:
         """

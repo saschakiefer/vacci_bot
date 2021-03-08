@@ -17,11 +17,18 @@ logger.setLevel(logging.DEBUG)
 
 if __name__ == "__main__":
     logger.info("Started")
+
+    test_mode = False
+    if "--test" in sys.argv:
+        test_mode = True
+
+    logger.info(f"Test mode: {test_mode}")
+
     load_dotenv(verbose=True)
 
     try:  # Global Error Handling
         dataset = VaccinationStats()
-        TweetBot(dataset).tweet()
+        TweetBot(dataset).tweet(test_mode=test_mode)
     except Exception as ex:
         logger.error("Error executing the bot", exc_info=True)
         logger.info("Finished with error")
