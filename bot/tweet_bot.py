@@ -62,9 +62,9 @@ class TweetBot:
             )
 
             # Persons
-            fnt = ImageFont.truetype("bot/arial.ttf", 14)
+            fnt = ImageFont.truetype("bot/arial.ttf", 18)
             draw.text(
-                (204, 283),
+                (204, 279),
                 "{} people to go (first shot)".format(
                     locale.format_string(
                         "%d",
@@ -86,9 +86,9 @@ class TweetBot:
         Create and send tweet with image
         """
 
-        # if not self.is_new_data():
-        #     logger.info("No updates yet")
-        #     return
+        if not self.is_new_data():
+            logger.info("No updates yet")
+            return
 
         # Create Tweet
         status_text = (
@@ -125,6 +125,7 @@ class TweetBot:
             long=13.34704871422069,
             media_ids=[media.media_id],
         )
+        logger.info("Tweeted")
 
     def is_new_data(self) -> bool:
         """
