@@ -50,6 +50,9 @@ class TweetBot:
 
             # Draw current
             x = 50 + int(round(900 * self._stats.vacc_quote_first))
+            draw.rectangle([(50, 200), (x, 300)], width=0, fill="#26a325")
+
+            x = 50 + int(round(900 * self._stats.vacc_quote_complete))
             draw.rectangle([(50, 200), (x, 300)], width=0, fill="green")
 
             # Days to go
@@ -73,6 +76,14 @@ class TweetBot:
                         monetary=True,
                     )
                 ),
+                font=fnt,
+                fill="white",
+            )
+
+            # Target Date
+            draw.text(
+                (690, 279),
+                self._stats.target_date.strftime("%d.%m.%Y"),
                 font=fnt,
                 fill="white",
             )

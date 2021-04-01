@@ -1,3 +1,4 @@
+import datetime
 import logging
 
 import pandas as pd
@@ -26,9 +27,18 @@ class VaccinationStats:
         self.vacc_first = df.tail(1)["personen_erst_kumulativ"].values[0]
 
         self.vacc_quote_first = self.vacc_first / VaccinationStats.POPULATION
+        if self.vacc_quote_first > 1:
+            self.vacc_quote_first = 1
+
         self.vacc_quote_complete = self.vacc_both / VaccinationStats.POPULATION
+        if self.vacc_quote_complete > 1:
+            self.vacc_quote_complete = 1
 
         self.vacc_median = df.tail(7)["dosen_differenz_zum_vortag"].mean()
 
         self.people_to_go = VaccinationStats.POPULATION * 0.7 - self.vacc_first
         self.days_to_go = int(round(self.people_to_go / self.vacc_median))
+
+        self.target_date = datetime.datetime.today() + datetime.timedelta(
+            days=self.days_to_go
+        )
