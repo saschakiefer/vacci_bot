@@ -53,7 +53,7 @@ class TweetBot:
             draw.rectangle([(50, 200), (x, 300)], width=0, fill="#26a325")
 
             x = 50 + int(round(900 * self._stats.vacc_quote_complete))
-            draw.rectangle([(50, 207), (x, 293)], width=0, fill="green")
+            draw.rectangle([(50, 220), (x, 280)], width=0, fill="green")
 
             # Days to go
             fnt = ImageFont.truetype("bot/arial.ttf", 50)
