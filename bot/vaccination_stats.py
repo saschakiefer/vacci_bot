@@ -30,13 +30,20 @@ class VaccinationStats:
         if self.vacc_quote_first > 1:
             self.vacc_quote_first = 1
 
+        # If we reach 70% switch to 100% as target
+        self.target_quote = 0.7
+        if self.vacc_quote_first > 0.7:
+            self.target_quote = 1
+
         self.vacc_quote_complete = self.vacc_both / VaccinationStats.POPULATION
         if self.vacc_quote_complete > 1:
             self.vacc_quote_complete = 1
 
         self.vacc_median = df.tail(7)["dosen_differenz_zum_vortag"].mean()
 
-        self.people_to_go = VaccinationStats.POPULATION * 0.7 - self.vacc_first
+        self.people_to_go = (
+            VaccinationStats.POPULATION * self.target_quote - self.vacc_first
+        )
         self.days_to_go = int(round(self.people_to_go / self.vacc_median))
 
         self.target_date = datetime.datetime.today() + datetime.timedelta(

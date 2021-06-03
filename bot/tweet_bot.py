@@ -59,7 +59,9 @@ class TweetBot:
             fnt = ImageFont.truetype("bot/arial.ttf", 50)
             draw.text(
                 (200, 220),
-                "Days to 70%: " + str(self._stats.days_to_go),
+                "Days to {}%: {}".format(
+                    str(int(self._stats.target_quote * 100)), str(self._stats.days_to_go)
+                ),
                 font=fnt,
                 fill="white",
             )
